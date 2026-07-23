@@ -1,32 +1,43 @@
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #0f172a;
-    color: #e2e8f0;
-    line-height: 1.6;
-    padding: 20px;
+/* Căn khung Header nằm ngang và giữa */
+.header {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Khoảng cách giữa avatar và tên */
+    margin-bottom: 20px;
+}
+
+/* Biến ảnh thành avatar tròn xịn xò */
+.avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%; /* Bo tròn xoe */
+    border: 3px solid #38bdf8; /* Viền màu xanh nổi bật */
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); /* Hiệu ứng phát sáng nhẹ */
+}
+
+/* Tên bot */
+.bot-name {
     margin: 0;
+    font-size: 1.8rem;
+    color: #f8fafc;
 }
 
-.container {
-    max-width: 800px;
-    margin: 40px auto;
-    background: #1e293b;
-    padding: 30px;
+/* Cái nhãn Badge nhỏ nhỏ xinh xinh dưới tên */
+.badge {
+    background-color: #0369a1;
+    color: #e0f2fe;
+    font-size: 0.75rem;
+    padding: 3px 8px;
     border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    font-weight: bold;
+    display: inline-block;
+    margin-top: 5px;
 }
 
-h1 {
-    color: #38bdf8;
-    border-bottom: 2px solid #334155;
-    padding-bottom: 10px;
-}
-
-h2 {
-    color: #818cf8;
-    margin-top: 25px;
-}
-
-strong {
-    color: #f43f5e;
+/* Đường gạch ngang phân cách */
+.divider {
+    border: none;
+    height: 1px;
+    background: #334155;
+    margin-bottom: 25px;
 }
