@@ -2,34 +2,299 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chính sách quyền riêng tư - NeHero Bot</title>
-    <!-- Thêm dòng link CSS ở đây nè -->
-    <link rel="stylesheet" href="style.css"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>MeoNeHero - Archive & AI</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body {
+            background: linear-gradient(180deg, #051e28 0%, #0a2d3c 40%, #000000 100%);
+            color: #fff; font-family: sans-serif;
+            min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+            padding: 20px 15px 90px 15px; overflow-x: hidden;
+        }
+
+        /* Profile Header */
+        .profile { text-align: center; margin-bottom: 25px; margin-top: 10px; }
+        .avatar-frame {
+            width: 100px; height: 100px; border-radius: 50%;
+            border: 3px solid #6ee7b7; padding: 3px; display: inline-block;
+            cursor: pointer;
+        }
+        .avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        .username { font-size: 22px; font-weight: bold; margin-top: 8px; color: #e2e8f0; }
+        .subtext { font-size: 13px; color: #94a3b8; margin-top: 2px; }
+        .quote { font-size: 12px; color: #64748b; margin-top: 4px; font-style: italic; }
+
+        /* File List Container */
+        .file-list { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 15px; }
+
+        /* File Card Item */
+        .file-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid #ffffff; border-radius: 35px;
+            padding: 8px 15px 8px 8px; display: flex; align-items: center;
+            backdrop-filter: blur(5px); text-decoration: none; color: inherit;
+            position: relative; transition: transform 0.2s;
+        }
+        .file-card:active { transform: scale(0.98); }
+        .banner {
+            width: 60px; height: 60px; border-radius: 50%;
+            border: 2px solid #fff; background: #000;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: bold; flex-shrink: 0;
+            overflow: hidden; object-fit: cover;
+        }
+        .file-info { margin-left: 15px; flex-grow: 1; overflow: hidden; }
+        .file-title { font-size: 16px; font-weight: bold; }
+        .file-desc { font-size: 12px; color: #cbd5e1; margin-top: 2px; }
+
+        /* Delete Button */
+        .btn-card-del {
+            background: #ef4444; color: white; border: none;
+            border-radius: 20px; padding: 6px 12px; font-size: 11px;
+            cursor: pointer; font-weight: bold; margin-left: 8px;
+        }
+
+        /* AI Chat Box ở chân trang */
+        .ai-chat-bar {
+            position: fixed; bottom: 15px; width: calc(100% - 30px); max-width: 420px;
+            background: rgba(30, 41, 59, 0.9); border: 1px solid #475569;
+            border-radius: 30px; padding: 6px 12px; display: flex; align-items: center;
+            backdrop-filter: blur(10px); z-index: 90;
+        }
+        .ai-input {
+            flex-grow: 1; background: transparent; border: none; outline: none;
+            color: #fff; font-size: 13px; padding: 6px 10px;
+        }
+        .ai-btn {
+            background: #38bdf8; border: none; width: 34px; height: 34px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; flex-shrink: 0; color: #000; font-weight: bold;
+        }
+
+        /* Modal Overlay */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 100;
+            justify-content: center; align-items: center; padding: 20px;
+        }
+        .modal-content {
+            background: #0f172a; border: 1px solid #334155; border-radius: 20px;
+            padding: 20px; width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 12px;
+        }
+        .modal-title { font-size: 18px; font-weight: bold; color: #38bdf8; text-align: center; }
+        .input-field {
+            background: #1e293b; border: 1px solid #475569; border-radius: 10px;
+            padding: 10px; color: white; outline: none; font-size: 14px;
+        }
+        .btn-submit {
+            background: #0284c7; color: white; border: none; border-radius: 10px;
+            padding: 12px; font-weight: bold; cursor: pointer; margin-top: 5px;
+        }
+        .btn-cancel {
+            background: transparent; color: #94a3b8; border: none;
+            padding: 6px; cursor: pointer; text-align: center; font-size: 13px;
+        }
+        .ai-response-box {
+            max-height: 200px; overflow-y: auto; font-size: 13px; color: #e2e8f0;
+            background: #1e293b; padding: 10px; border-radius: 10px; line-height: 1.4;
+        }
+    </style>
 </head>
 <body>
-    <div class="header">
-    <img src="https://pin.it/5jTL8SRJr.png" alt="NeHero Bot" class="avatar">
-    <div class="bot-info">
-        <h1 class="bot-name">NeHero Bot</h1>
-        <span class="badge">Official Privacy Policy</span>
+
+    <div class="profile">
+        <div class="avatar-frame" id="avatarBtn">
+            <img class="avatar" src="https://via.placeholder.com/100" alt="Avatar">
+        </div>
+        <div class="username">MeoNeHero</div>
+        <div class="subtext">~1500 Followers</div>
+        <div class="quote">câu nói để đời: BadTimeSans gay v1</div>
     </div>
-</div>
-<hr class="divider">
-    
-    <div class="container">
-        <h1>Chính Sách Quyền Riêng Tư</h1>
-        <p>Chào mừng bạn đến với <strong>NeHero Bot</strong>!</p>
-        
-        <h2>1. Thu thập dữ liệu</h2>
-        <p>Bot chỉ lưu trữ các thông tin cơ bản để vận hành game bao gồm: Discord User ID, số dư (necoin), và vật phẩm trong game (quặng, cá,...).</p>
-        
-        <h2>2. Sử dụng dữ liệu</h2>
-        <p>Dữ liệu chỉ được sử dụng cho các tính năng của bot trong server Discord. Chúng tôi cam kết không bán, chia sẻ hoặc tiết lộ thông tin cho bên thứ ba.</p>
-        
-        <h2>3. Liên hệ</h2>
-        <p>Nếu có thắc mắc, vui lòng liên hệ qua Discord Server chính thức của bot.</p>
+
+    <div class="file-list" id="fileContainer"></div>
+
+    <div class="ai-chat-bar">
+        <input type="text" id="aiInput" class="ai-input" placeholder="bạn có câu hỏi? Hỏi ngay AI">
+        <button class="ai-btn" onclick="sendAiQuestion()">➔</button>
     </div>
+
+    <div class="modal" id="aiModal">
+        <div class="modal-content">
+            <div class="modal-title">Trả lời từ AI</div>
+            <div class="ai-response-box" id="aiResponse">Đang suy nghĩ...</div>
+            <div class="btn-cancel" onclick="closeModals()">Đóng</div>
+        </div>
+    </div>
+
+    <div class="modal" id="pwModal">
+        <div class="modal-content">
+            <div class="modal-title">Xác thực Admin</div>
+            <input type="password" id="pwInput" class="input-field" placeholder="Nhập mật khẩu...">
+            <button class="btn-submit" onclick="checkPassword()">Xác nhận</button>
+            <div class="btn-cancel" onclick="closeModals()">Hủy</div>
+        </div>
+    </div>
+
+    <div class="modal" id="adminModal">
+        <div class="modal-content">
+            <div class="modal-title">Thêm File Mới</div>
+            <input type="text" id="fileTitle" class="input-field" placeholder="Tên file">
+            <input type="text" id="fileDesc" class="input-field" placeholder="Mô tả...">
+            <input type="text" id="fileBanner" class="input-field" placeholder="Link ảnh Banner">
+            <input type="text" id="fileLink" class="input-field" placeholder="Link Mediafire / Lưu trữ">
+            <button class="btn-submit" onclick="addNewFile()">Đăng File</button>
+            <div class="btn-cancel" onclick="closeModals()">Đóng</div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. CẤU HÌNH SUPABASE & API KEY ---
+        const SUPABASE_URL = "https://xxxx.supabase.co"; // <--- ĐIỀN URL SUPABASE CỦA CẬU
+        const SUPABASE_KEY = "eyJhbGciOi...";             // <--- ĐIỀN ANON KEY CỦA CẬU
+        const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY";     // <--- ĐIỀN API KEY GEMINI/OPENAI
+
+        const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const AUTH_PASS = "meoneheroundertale";
+
+        let filesData = [];
+        let isDeleteMode = false;
+        let pendingAction = null;
+
+        // --- 2. LOAD VÀ RENDER TỪ SUPABASE ---
+        async function loadFiles() {
+            const { data, error } = await db.from('files').select('*').order('id', { ascending: false });
+            if (!error && data) {
+                filesData = data;
+                renderFiles();
+            }
+        }
+
+        function renderFiles() {
+            const container = document.getElementById('fileContainer');
+            container.innerHTML = '';
+            filesData.forEach((item) => {
+                const card = document.createElement('a');
+                card.className = 'file-card';
+                card.href = isDeleteMode ? 'javascript:void(0)' : item.media_url;
+                if(!isDeleteMode) card.target = "_blank";
+
+                const bannerImg = item.banner_url ? `<img src="${item.banner_url}" class="banner">` : `<div class="banner">Banner</div>`;
+                
+                card.innerHTML = `
+                    ${bannerImg}
+                    <div class="file-info">
+                        <div class="file-title">${item.title}</div>
+                        <div class="file-desc">${item.description || ''}</div>
+                    </div>
+                    ${isDeleteMode ? `<button class="btn-card-del" onclick="deleteFile(${item.id})">Xóa</button>` : ''}
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // --- 3. KHU VỰC CHAT AI ---
+        async function sendAiQuestion() {
+            const query = document.getElementById('aiInput').value.trim();
+            if(!query) return;
+
+            document.getElementById('aiResponse').innerText = "Đang suy nghĩ...";
+            document.getElementById('aiModal').style.display = 'flex';
+
+            try {
+                // Gọi API Gemini
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: query }] }]
+                    })
+                });
+                const data = await res.json();
+                const reply = data.candidates[0].content.parts[0].text;
+                document.getElementById('aiResponse').innerText = reply;
+            } catch(e) {
+                document.getElementById('aiResponse').innerText = "Lỗi kết nối AI hoặc sai Key API!";
+            }
+        }
+
+        // --- 4. CỬ CHỈ GESTURE & XÁC THỰC ---
+        let avatarClicks = 0, clickTimer = null;
+        document.getElementById('avatarBtn').addEventListener('click', () => {
+            avatarClicks++;
+            clearTimeout(clickTimer);
+            if (avatarClicks === 3) {
+                avatarClicks = 0;
+                openPasswordModal('add');
+            } else {
+                clickTimer = setTimeout(() => avatarClicks = 0, 1000);
+            }
+        });
+
+        let touchStartX = 0, touchEndX = 0;
+        let swipeRightCount = 0, swipeLeftCount = 0, swipeTimer = null;
+
+        document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; });
+        document.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            const diffX = touchEndX - touchStartX;
+            if (Math.abs(diffX) < 50) return;
+
+            clearTimeout(swipeTimer);
+            swipeTimer = setTimeout(() => { swipeRightCount = 0; swipeLeftCount = 0; }, 1500);
+
+            if (diffX < -50) { // Phải -> Trái 3 lần
+                swipeLeftCount++; swipeRightCount = 0;
+                if (swipeLeftCount === 3) { swipeLeftCount = 0; openPasswordModal('add'); }
+            } else if (diffX > 50) { // Trái -> Phải 3 lần
+                swipeRightCount++; swipeLeftCount = 0;
+                if (swipeRightCount === 3) { swipeRightCount = 0; openPasswordModal('delete'); }
+            }
+        });
+
+        function openPasswordModal(action) {
+            pendingAction = action;
+            document.getElementById('pwInput').value = '';
+            document.getElementById('pwModal').style.display = 'flex';
+        }
+
+        function checkPassword() {
+            if (document.getElementById('pwInput').value === AUTH_PASS) {
+                closeModals();
+                if (pendingAction === 'add') document.getElementById('adminModal').style.display = 'flex';
+                else if (pendingAction === 'delete') { isDeleteMode = !isDeleteMode; renderFiles(); }
+            } else alert("Mật khẩu không đúng!");
+        }
+
+        function closeModals() {
+            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+        }
+
+        // --- 5. THÊM & XÓA DỮ LIỆU TỪ SUPABASE ---
+        async function addNewFile() {
+            const title = document.getElementById('fileTitle').value;
+            const description = document.getElementById('fileDesc').value;
+            const banner_url = document.getElementById('fileBanner').value;
+            const media_url = document.getElementById('fileLink').value;
+
+            if(!title || !media_url) return alert("Vui lòng nhập Tên file và Link!");
+
+            const { error } = await db.from('files').insert([{ title, description, banner_url, media_url }]);
+            if(!error) {
+                closeModals();
+                loadFiles();
+            } else alert("Có lỗi khi đăng file!");
+        }
+
+        async function deleteFile(id) {
+            if(!confirm("Xóa file này vĩnh viễn?")) return;
+            const { error } = await db.from('files').delete().eq('id', id);
+            if(!error) loadFiles();
+            else alert("Lỗi khi xóa file!");
+        }
+
+        loadFiles();
+    </script>
 </body>
 </html>
-
