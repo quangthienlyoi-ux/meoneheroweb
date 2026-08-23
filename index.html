@@ -92,7 +92,6 @@
             z-index: 2;
         }
 
-        /* ANIMATION TRƯỢT TỪ DƯỚI LÊN + ĐỒ THỊ CHUYỂN ĐỘNG CHO FILE CARD */
         .file-card {
             background: #000000;
             border: 2px solid #ffffff;
@@ -144,7 +143,6 @@
             font-size: 16px; cursor: pointer; margin-left: 6px;
         }
 
-        /* CONTAINER ĐẶT KHUNG TRẢ LỜI & BAR CHAT */
         .chat-container-wrapper {
             position: fixed;
             bottom: 20px;
@@ -156,7 +154,6 @@
             z-index: 90;
         }
 
-        /* BẢNG TRẢ LỜI AI DÙNG ĐỒ THỊ CHUYỂN ĐỘNG NỔI TRƯỢT TỪ DƯỚI LÊN */
         .ai-response-popup {
             width: 100%;
             max-height: 0;
@@ -201,9 +198,9 @@
             overflow-y: auto;
             line-height: 1.2;
             word-break: break-word;
+            white-space: pre-wrap;
         }
 
-        /* CON TRỎ GÕ CHỮ DẠNG PIXEL */
         .typing-cursor::after {
             content: ' ';
             color: #38bdf8;
@@ -215,7 +212,6 @@
             50% { opacity: 0; }
         }
 
-        /* THANH NHẬP CHAT */
         .ai-chat-bar {
             width: 100%;
             height: 48px;
@@ -398,8 +394,9 @@
         const SUPABASE_URL = "https://uipjgdkasbcdhxlmzclc.supabase.co"; 
         const SUPABASE_KEY = "sb_publishable_XApMlu8Nm_kJF8ceuPvsQg_E-g19QwX";             
         
-        const GROQ_API_KEY = "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"; 
-        const OPENROUTER_API_KEY = "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"; 
+        // CẦN TẠO VÀ DÁN KEY MỚI VÀO ĐÂY (KEY CŨ ĐÃ BỊ HỦY DO NỔI TRÊN GITHUB)
+        const GROQ_API_KEY = ""; 
+        const OPENROUTER_API_KEY = ""; 
 
         const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const AUTH_PASS = "meoneheroundertale";
@@ -408,18 +405,17 @@
         let isDeleteMode = false;
         let pendingAction = null;
         let currentModel = 'groq';
-        let typingInterval = null;
+        let currentController = null;
 
-async function loadFiles() {
-    const { data, error } = await db.from('files').select('*').order('id', { ascending: false });
-    if (!error && data) {
-        filesData = data;
-    } else {
-        filesData = [];
-    }
-    renderFiles();
-}
-
+        async function loadFiles() {
+            const { data, error } = await db.from('files').select('*').order('id', { ascending: false });
+            if (!error && data) {
+                filesData = data;
+            } else {
+                filesData = [];
+            }
+            renderFiles();
+        }
 
         function renderFiles() {
             const container = document.getElementById('fileContainer');
@@ -430,7 +426,6 @@ async function loadFiles() {
                 card.href = isDeleteMode ? 'javascript:void(0)' : item.media_url;
                 if(!isDeleteMode) card.target = "_blank";
 
-                // TẠO THỜI GIAN TRỄ LẦN LƯỢT CHO HIỆU ỨNG TỪ DƯỚI LÊN
                 card.style.animationDelay = `${index * 0.12}s`;
 
                 const bannerImg = item.banner_url ? `<img src="${item.banner_url}" class="banner">` : `<div class="banner">Banner</div>`;
@@ -459,95 +454,95 @@ async function loadFiles() {
             toggleModelMenu();
         }
 
-        function openAiResponse(text, modelName, isStreaming = false) {
-            document.getElementById('modelTag').innerText = `[${modelName}]`;
-            const box = document.getElementById('aiResponseBox');
-            const textElem = document.getElementById('aiResponseText');
-            
-            box.classList.add('active');
-
-            if (!isStreaming) {
-                textElem.innerText = text;
-                textElem.classList.remove('typing-cursor');
-                return;
-            }
-
-            // HIỆU ỨNG GÕ CHỮ (TYPEWRITER EFFECT)
-            textElem.classList.add('typing-cursor');
-            textElem.innerText = "";
-            clearInterval(typingInterval);
-
-            let i = 0;
-            typingInterval = setInterval(() => {
-                if (i < text.length) {
-                    textElem.innerText += text.charAt(i);
-                    textElem.scrollTop = textElem.scrollHeight;
-                    i++;
-                } else {
-                    clearInterval(typingInterval);
-                    textElem.classList.remove('typing-cursor');
-                }
-            }, 25);
-        }
-
         function closeAiResponse() {
-            clearInterval(typingInterval);
+            if (currentController) currentController.abort();
             document.getElementById('aiResponseBox').classList.remove('active');
         }
 
         async function sendAiQuestion() {
-            const query = document.getElementById('aiInput').value.trim();
+            const inputElem = document.getElementById('aiInput');
+            const query = inputElem.value.trim();
             if(!query) return;
 
-            const modelLabel = currentModel === 'groq' ? 'GROQ - Llama3' : 'GPT-4o';
-            openAiResponse("Đang suy nghĩ...", modelLabel, false);
+            const modelLabel = currentModel === 'groq' ? 'GROQ - Llama 3.1' : 'GPT-4o';
+            document.getElementById('modelTag').innerText = `[${modelLabel}]`;
+            
+            const box = document.getElementById('aiResponseBox');
+            const textElem = document.getElementById('aiResponseText');
+            
+            box.classList.add('active');
+            textElem.classList.add('typing-cursor');
+            textElem.innerText = "";
+            inputElem.value = "";
 
-            if ((currentModel === 'groq' && !GROQ_API_KEY) || (currentModel === 'gpt4o' && !OPENROUTER_API_KEY)) {
-                setTimeout(() => {
-                    const mockReplies = [
-                        `[TEST MODE] Câu hỏi: "${query}"\n-> Sans Undertale nhắn: "Chào bro, tao là BadTimeSans v1 đây! Animation gõ chữ và nhảy khung chạy quá êm đúng không?"`,
-                        `[TEST MODE - ${currentModel.toUpperCase()}]\n-> Hệ thống AI đã kết nối thành công. Mọi hiệu ứng trượt đồ thị cubic-bezier đang hoạt động siêu mượt trên Archive!`
-                    ];
-                    const randomReply = mockReplies[Math.floor(Math.random() * mockReplies.length)];
-                    openAiResponse(randomReply, currentModel === 'groq' ? 'GROQ (Mock)' : 'GPT-4o (Mock)', true);
-                }, 600);
+            const apiKey = currentModel === 'groq' ? GROQ_API_KEY : OPENROUTER_API_KEY;
+
+            if (!apiKey) {
+                textElem.innerText = "Lỗi: Chưa nhập API Key mới! (Key cũ đã bị hủy do lộ mã nguồn).";
+                textElem.classList.remove('typing-cursor');
                 return;
             }
 
+            if (currentController) currentController.abort();
+            currentController = new AbortController();
+
+            const endpoint = currentModel === 'groq' 
+                ? "https://api.groq.com/openai/v1/chat/completions" 
+                : "https://openrouter.ai/api/v1/chat/completions";
+
+            const payloadModel = currentModel === 'groq' ? "llama-3.1-8b-instant" : "openai/gpt-4o";
+
             try {
-                let responseText = "";
-                if (currentModel === 'groq') {
-                    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                        method: "POST",
-                        headers: {
-                            "Authorization": `Bearer ${GROQ_API_KEY}`,
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            messages: [{ role: "user", content: query }],
-                            model: "llama-3.1-8b-instant"
-                        })
-                    });
-                    const data = await res.json();
-                    responseText = data.choices[0].message.content;
-                } else {
-                    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-                        method: "POST",
-                        headers: {
-                            "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            model: "openai/gpt-4o",
-                            messages: [{ role: "user", content: query }]
-                        })
-                    });
-                    const data = await res.json();
-                    responseText = data.choices[0].message.content;
+                const res = await fetch(endpoint, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${apiKey}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: payloadModel,
+                        messages: [{ role: "user", content: query }],
+                        stream: true
+                    }),
+                    signal: currentController.signal
+                });
+
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}`);
                 }
-                openAiResponse(responseText, modelLabel, true);
-            } catch(e) {
-                openAiResponse("Lỗi kết nối API! Kiểm tra lại Key hoặc mạng.", "LỖI", false);
+
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let buffer = "";
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split("\n");
+                    buffer = lines.pop(); 
+
+                    for (const line of lines) {
+                        const trimmed = line.trim();
+                        if (trimmed.startsWith("data: ")) {
+                            const dataStr = trimmed.replace("data: ", "");
+                            if (dataStr === "[DONE]") break;
+                            try {
+                                const parsed = JSON.parse(dataStr);
+                                const content = parsed.choices[0]?.delta?.content || "";
+                                textElem.innerText += content;
+                                textElem.scrollTop = textElem.scrollHeight;
+                            } catch (err) {}
+                        }
+                    }
+                }
+            } catch (e) {
+                if (e.name !== 'AbortError') {
+                    textElem.innerText = "\n[Lỗi kết nối API hoặc Key không hợp lệ]";
+                }
+            } finally {
+                textElem.classList.remove('typing-cursor');
             }
         }
 
