@@ -51,6 +51,12 @@
             margin-top: 5px;
             margin-bottom: 20px;
             z-index: 2;
+            animation: fadeInProfile 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
+        @keyframes fadeInProfile {
+            0% { opacity: 0; transform: translateY(-15px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
 
         .avatar-frame {
@@ -86,6 +92,7 @@
             z-index: 2;
         }
 
+        /* ANIMATION TRƯỢT TỪ DƯỚI LÊN + ĐỒ THỊ CHUYỂN ĐỘNG CHO FILE CARD */
         .file-card {
             background: #000000;
             border: 2px solid #ffffff;
@@ -96,7 +103,21 @@
             text-decoration: none;
             color: inherit;
             position: relative;
+            opacity: 0;
+            transform: translateY(40px);
+            animation: fadeInUpCard 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
             transition: transform 0.1s ease;
+        }
+
+        @keyframes fadeInUpCard {
+            0% {
+                opacity: 0;
+                transform: translateY(50px) scale(0.92);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
 
         .file-card:active { transform: scale(0.97); }
@@ -123,7 +144,7 @@
             font-size: 16px; cursor: pointer; margin-left: 6px;
         }
 
-        /* --- CONTAINER ĐẶT KHUNG TRẢ LỜI & BAR CHAT --- */
+        /* CONTAINER ĐẶT KHUNG TRẢ LỜI & BAR CHAT */
         .chat-container-wrapper {
             position: fixed;
             bottom: 20px;
@@ -135,7 +156,7 @@
             z-index: 90;
         }
 
-        /* --- BẢNG TRẢ LỜI AI ANIMATION SIÊU MƯỢT --- */
+        /* BẢNG TRẢ LỜI AI DÙNG ĐỒ THỊ CHUYỂN ĐỘNG NỔI TRƯỢT TỪ DƯỚI LÊN */
         .ai-response-popup {
             width: 100%;
             max-height: 0;
@@ -146,17 +167,17 @@
             border-radius: 20px;
             margin-bottom: 0px;
             padding: 0 15px;
-            box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
             backdrop-filter: blur(12px);
-            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            transform: translateY(20px) scale(0.95);
+            transition: all 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: translateY(35px) scale(0.9);
         }
 
         .ai-response-popup.active {
-            max-height: 220px;
+            max-height: 240px;
             opacity: 1;
             padding: 12px 15px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             border-width: 2px;
             transform: translateY(0) scale(1);
         }
@@ -176,13 +197,25 @@
         .response-text {
             font-size: 17px;
             color: #e2e8f0;
-            max-height: 150px;
+            max-height: 160px;
             overflow-y: auto;
             line-height: 1.2;
             word-break: break-word;
         }
 
-        /* --- THANH NHẬP CHAT --- */
+        /* CON TRỎ GÕ CHỮ DẠNG PIXEL */
+        .typing-cursor::after {
+            content: '▌';
+            color: #38bdf8;
+            animation: blink 0.7s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* THANH NHẬP CHAT */
         .ai-chat-bar {
             width: 100%;
             height: 48px;
@@ -244,7 +277,6 @@
             margin-left: 2px;
         }
 
-        /* MENU CHỌN MODEL (GROQ / GPT-4O) */
         .model-selector-menu {
             display: none;
             position: absolute;
@@ -269,7 +301,6 @@
 
         .model-opt.active { background: #0284c7; font-weight: bold; }
 
-        /* MODALS (ADMIN & PW) */
         .modal {
             display: none; position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -319,14 +350,13 @@
 
     <div class="file-list" id="fileContainer"></div>
 
-    <!-- KHUNG CHAT & AI RESPONSE PHÍA TRÊN -->
     <div class="chat-container-wrapper">
         <div class="ai-response-popup" id="aiResponseBox">
             <div class="response-header">
                 <span class="response-model-tag" id="modelTag">[GROQ - Llama 3]</span>
                 <span class="response-close" onclick="closeAiResponse()">✕</span>
             </div>
-            <div class="response-text" id="aiResponseText">...</div>
+            <div class="response-text typing-cursor" id="aiResponseText">...</div>
         </div>
 
         <div class="ai-chat-bar">
@@ -336,7 +366,6 @@
                 <div class="ai-btn-arrow"></div>
             </div>
 
-            <!-- Menu Chọn Model -->
             <div class="model-selector-menu" id="modelMenu">
                 <div class="model-opt active" id="opt-groq" onclick="selectModel('groq')">Groq (Llama 3)</div>
                 <div class="model-opt" id="opt-gpt4o" onclick="selectModel('gpt4o')">GPT-4o (OpenRouter)</div>
@@ -366,11 +395,9 @@
     </div>
 
     <script>
-        // CẤU HÌNH SUPABASE & KEYS AI
         const SUPABASE_URL = "https://uipjgdkasbcdhxlmzclc.supabase.co"; 
         const SUPABASE_KEY = "sb_publishable_XApMlu8Nm_kJF8ceuPvsQg_E-g19QwX";             
         
-        // Dán API Key vào đây (Nếu để trống, code sẽ chạy chế độ Mock Test văn bản)
         const GROQ_API_KEY = ""; 
         const OPENROUTER_API_KEY = ""; 
 
@@ -381,24 +408,36 @@
         let isDeleteMode = false;
         let pendingAction = null;
         let currentModel = 'groq';
+        let typingInterval = null;
 
-        // Tải danh sách file
+        // Dữ liệu mẫu ban đầu để test hiệu ứng nếu chưa có file trong db
+        const mockFiles = [
+            { id: 1, title: "Undertale Fan Game Mobile", description: "Bản port Android mượt mà 60fps", banner_url: "", media_url: "#" },
+            { id: 2, title: "Dusttale Battle Mod Scratch", description: "File SB3 đã qua xử lý Turbowarp", banner_url: "", media_url: "#" },
+            { id: 3, title: "Asset Sprite Pack 129 Sprites", description: "Trích xuất bằng MT Manager", banner_url: "", media_url: "#" }
+        ];
+
         async function loadFiles() {
             const { data, error } = await db.from('files').select('*').order('id', { ascending: false });
-            if (!error && data) {
+            if (!error && data && data.length > 0) {
                 filesData = data;
-                renderFiles();
+            } else {
+                filesData = mockFiles;
             }
+            renderFiles();
         }
 
         function renderFiles() {
             const container = document.getElementById('fileContainer');
             container.innerHTML = '';
-            filesData.forEach((item) => {
+            filesData.forEach((item, index) => {
                 const card = document.createElement('a');
                 card.className = 'file-card';
                 card.href = isDeleteMode ? 'javascript:void(0)' : item.media_url;
                 if(!isDeleteMode) card.target = "_blank";
+
+                // TẠO THỜI GIAN TRỄ LẦN LƯỢT CHO HIỆU ỨNG TỪ DƯỚI LÊN
+                card.style.animationDelay = `${index * 0.12}s`;
 
                 const bannerImg = item.banner_url ? `<img src="${item.banner_url}" class="banner">` : `<div class="banner">Banner</div>`;
                 
@@ -414,7 +453,6 @@
             });
         }
 
-        // CHỌN MODEL AI (GROQ / GPT-4O)
         function toggleModelMenu() {
             const menu = document.getElementById('modelMenu');
             menu.style.display = (menu.style.display === 'flex') ? 'none' : 'flex';
@@ -427,38 +465,61 @@
             toggleModelMenu();
         }
 
-        // HÀM MỞ / ĐÓNG POPUP TRẢ LỜI AI
-        function openAiResponse(text, modelName) {
+        function openAiResponse(text, modelName, isStreaming = false) {
             document.getElementById('modelTag').innerText = `[${modelName}]`;
-            document.getElementById('aiResponseText').innerText = text;
-            document.getElementById('aiResponseBox').classList.add('active');
+            const box = document.getElementById('aiResponseBox');
+            const textElem = document.getElementById('aiResponseText');
+            
+            box.classList.add('active');
+
+            if (!isStreaming) {
+                textElem.innerText = text;
+                textElem.classList.remove('typing-cursor');
+                return;
+            }
+
+            // HIỆU ỨNG GÕ CHỮ (TYPEWRITER EFFECT)
+            textElem.classList.add('typing-cursor');
+            textElem.innerText = "";
+            clearInterval(typingInterval);
+
+            let i = 0;
+            typingInterval = setInterval(() => {
+                if (i < text.length) {
+                    textElem.innerText += text.charAt(i);
+                    textElem.scrollTop = textElem.scrollHeight;
+                    i++;
+                } else {
+                    clearInterval(typingInterval);
+                    textElem.classList.remove('typing-cursor');
+                }
+            }, 25);
         }
 
         function closeAiResponse() {
+            clearInterval(typingInterval);
             document.getElementById('aiResponseBox').classList.remove('active');
         }
 
-        // GỬI CÂU HỎI AI (GROQ / OPENROUTER GPT-4O)
         async function sendAiQuestion() {
             const query = document.getElementById('aiInput').value.trim();
             if(!query) return;
 
-            openAiResponse("Đang suy nghĩ...", currentModel === 'groq' ? 'GROQ - Llama3' : 'GPT-4o');
+            const modelLabel = currentModel === 'groq' ? 'GROQ - Llama3' : 'GPT-4o';
+            openAiResponse("Đang suy nghĩ...", modelLabel, false);
 
-            // --- KIỂM TRA & CHẠY MOCK TEST NẾU CHƯA CÓ KEY ---
             if ((currentModel === 'groq' && !GROQ_API_KEY) || (currentModel === 'gpt4o' && !OPENROUTER_API_KEY)) {
                 setTimeout(() => {
                     const mockReplies = [
-                        `[TEST MODE] Câu hỏi: "${query}"\n-> Sans Undertale nhắn: "chào bro, tao là BadTimeSans v1 đây! Code animation đỉnh vl đúng ko?"`,
-                        `[TEST MODE - ${currentModel.toUpperCase()}]\n-> Trả lời: Hệ thống AI đang chạy mượt mà trên giao diện Archive của MeoNeHero!`
+                        `[TEST MODE] Câu hỏi: "${query}"\n-> Sans Undertale nhắn: "Chào bro, tao là BadTimeSans v1 đây! Animation gõ chữ và nhảy khung chạy quá êm đúng không?"`,
+                        `[TEST MODE - ${currentModel.toUpperCase()}]\n-> Hệ thống AI đã kết nối thành công. Mọi hiệu ứng trượt đồ thị cubic-bezier đang hoạt động siêu mượt trên Archive!`
                     ];
                     const randomReply = mockReplies[Math.floor(Math.random() * mockReplies.length)];
-                    openAiResponse(randomReply, currentModel === 'groq' ? 'GROQ (Mock)' : 'GPT-4o (Mock)');
-                }, 800);
+                    openAiResponse(randomReply, currentModel === 'groq' ? 'GROQ (Mock)' : 'GPT-4o (Mock)', true);
+                }, 600);
                 return;
             }
 
-            // --- GỬI API THẬT NẾU ĐÃ ĐIỀN KEY ---
             try {
                 let responseText = "";
                 if (currentModel === 'groq') {
@@ -490,13 +551,12 @@
                     const data = await res.json();
                     responseText = data.choices[0].message.content;
                 }
-                openAiResponse(responseText, currentModel === 'groq' ? 'GROQ - Llama3' : 'GPT-4o');
+                openAiResponse(responseText, modelLabel, true);
             } catch(e) {
-                openAiResponse("Lỗi kết nối API! Kiểm tra lại Key hoặc kết nối mạng.", "LỖI");
+                openAiResponse("Lỗi kết nối API! Kiểm tra lại Key hoặc mạng.", "LỖI", false);
             }
         }
 
-        // TÍNH NĂNG ADMIN (CHẠM 3 LẦN AVATAR / VUỐT 3 LẦN)
         let avatarClicks = 0, clickTimer = null;
         document.getElementById('avatarBtn').addEventListener('click', () => {
             avatarClicks++;
@@ -548,7 +608,6 @@
             document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
         }
 
-        // THÊM / XÓA FILE
         async function addNewFile() {
             const title = document.getElementById('fileTitle').value;
             const description = document.getElementById('fileDesc').value;
