@@ -205,7 +205,7 @@
 
         /* CON TRỎ GÕ CHỮ DẠNG PIXEL */
         .typing-cursor::after {
-            content: '▌';
+            content: '';
             color: #38bdf8;
             animation: blink 0.7s infinite;
         }
@@ -338,13 +338,13 @@
 
     <div class="profile">
         <div class="avatar-frame" id="avatarBtn">
-            <img class="avatar" src="https://via.placeholder.com/100" alt="Avatar">
+            <img class="avatar" src="https://files.catbox.moe/8liyyh.jpg" alt="Avatar">
         </div>
         <div class="profile-info">
             <div class="username">MeoNeHero</div>
-            <div class="subtext">~1500 Followers</div>
+            <div class="subtext">1500 Followers</div>
             <div class="quote-label">câu nói để đời:</div>
-            <div class="quote">BadTimeSans gay v1</div>
+            <div class="quote">BadTimeSans gay vl</div>
         </div>
     </div>
 
@@ -410,22 +410,16 @@
         let currentModel = 'groq';
         let typingInterval = null;
 
-        // Dữ liệu mẫu ban đầu để test hiệu ứng nếu chưa có file trong db
-        const mockFiles = [
-            { id: 1, title: "Undertale Fan Game Mobile", description: "Bản port Android mượt mà 60fps", banner_url: "", media_url: "#" },
-            { id: 2, title: "Dusttale Battle Mod Scratch", description: "File SB3 đã qua xử lý Turbowarp", banner_url: "", media_url: "#" },
-            { id: 3, title: "Asset Sprite Pack 129 Sprites", description: "Trích xuất bằng MT Manager", banner_url: "", media_url: "#" }
-        ];
+async function loadFiles() {
+    const { data, error } = await db.from('files').select('*').order('id', { ascending: false });
+    if (!error && data) {
+        filesData = data;
+    } else {
+        filesData = [];
+    }
+    renderFiles();
+}
 
-        async function loadFiles() {
-            const { data, error } = await db.from('files').select('*').order('id', { ascending: false });
-            if (!error && data && data.length > 0) {
-                filesData = data;
-            } else {
-                filesData = mockFiles;
-            }
-            renderFiles();
-        }
 
         function renderFiles() {
             const container = document.getElementById('fileContainer');
