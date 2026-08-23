@@ -18,12 +18,11 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 15px 15px 120px 15px;
+            padding: 15px 15px 130px 15px;
             overflow-x: hidden;
             position: relative;
         }
 
-        /* --- HIỆU ỨNG QUẦNG SÁNG XANH DƯƠNG & TRẮNG Ở ĐÁY MÀN HÌNH --- */
         body::after {
             content: '';
             position: fixed;
@@ -43,7 +42,6 @@
             100% { opacity: 1; transform: translateX(-50%) scale(1.05); }
         }
 
-        /* --- HEADER PROFILE --- */
         .profile {
             width: 100%;
             max-width: 380px;
@@ -73,37 +71,12 @@
             background: #000;
         }
 
-        .profile-info {
-            display: flex;
-            flex-direction: column;
-        }
+        .profile-info { display: flex; flex-direction: column; }
+        .username { font-size: 28px; font-weight: bold; color: #38bdf8; line-height: 1; letter-spacing: 0.5px; }
+        .subtext { font-size: 18px; color: #7dd3fc; margin-top: 2px; }
+        .quote-label { font-size: 15px; color: #94a3b8; margin-top: 3px; }
+        .quote { font-size: 16px; color: #cbd5e1; }
 
-        .username {
-            font-size: 28px;
-            font-weight: bold;
-            color: #38bdf8;
-            line-height: 1;
-            letter-spacing: 0.5px;
-        }
-
-        .subtext {
-            font-size: 18px;
-            color: #7dd3fc;
-            margin-top: 2px;
-        }
-
-        .quote-label {
-            font-size: 15px;
-            color: #94a3b8;
-            margin-top: 3px;
-        }
-
-        .quote {
-            font-size: 16px;
-            color: #cbd5e1;
-        }
-
-        /* --- DANH SÁCH FILE --- */
         .file-list {
             width: 100%;
             max-width: 380px;
@@ -126,196 +99,208 @@
             transition: transform 0.1s ease;
         }
 
-        .file-card:active {
-            transform: scale(0.97);
-        }
+        .file-card:active { transform: scale(0.97); }
 
         .banner {
-            width: 55px;
-            height: 55px;
+            width: 55px; height: 55px;
             border-radius: 50%;
             border: 2px solid #ffffff;
             background: #ffffff;
             color: #000000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            font-weight: bold;
-            flex-shrink: 0;
-            overflow: hidden;
-            object-fit: cover;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; font-weight: bold;
+            flex-shrink: 0; overflow: hidden; object-fit: cover;
         }
 
-        .file-info {
-            margin-left: 12px;
-            flex-grow: 1;
-        }
-
-        .file-title {
-            font-size: 22px;
-            color: #ffffff;
-            line-height: 1;
-        }
-
-        .file-desc {
-            font-size: 15px;
-            color: #a1a1aa;
-            margin-top: 2px;
-        }
+        .file-info { margin-left: 12px; flex-grow: 1; }
+        .file-title { font-size: 22px; color: #ffffff; line-height: 1; }
+        .file-desc { font-size: 15px; color: #a1a1aa; margin-top: 2px; }
 
         .btn-card-del {
-            background: #ef4444;
-            color: white;
-            border: 1px solid #fff;
-            border-radius: 15px;
-            padding: 2px 8px;
-            font-family: 'VT323', monospace;
-            font-size: 16px;
-            cursor: pointer;
-            margin-left: 6px;
+            background: #ef4444; color: white;
+            border: 1px solid #fff; border-radius: 15px;
+            padding: 2px 8px; font-family: 'VT323', monospace;
+            font-size: 16px; cursor: pointer; margin-left: 6px;
         }
 
-        /* --- THANH NHẬP AI VỪA KHÍT & CHỮ MỜ MỜ (CHUẨN VIDEO/MOCKUP) --- */
-        .ai-chat-bar {
+        /* --- CONTAINER ĐẶT KHUNG TRẢ LỜI & BAR CHAT --- */
+        .chat-container-wrapper {
             position: fixed;
             bottom: 20px;
             width: calc(100% - 30px);
             max-width: 380px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 90;
+        }
+
+        /* --- BẢNG TRẢ LỜI AI ANIMATION SIÊU MƯỢT --- */
+        .ai-response-popup {
+            width: 100%;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            background: rgba(9, 19, 26, 0.95);
+            border: 0px solid #38bdf8;
+            border-radius: 20px;
+            margin-bottom: 0px;
+            padding: 0 15px;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+            backdrop-filter: blur(12px);
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: translateY(20px) scale(0.95);
+        }
+
+        .ai-response-popup.active {
+            max-height: 220px;
+            opacity: 1;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-width: 2px;
+            transform: translateY(0) scale(1);
+        }
+
+        .response-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed rgba(56, 189, 248, 0.4);
+            padding-bottom: 5px;
+            margin-bottom: 8px;
+        }
+
+        .response-model-tag { font-size: 14px; color: #38bdf8; font-weight: bold; }
+        .response-close { font-size: 18px; color: #94a3b8; cursor: pointer; }
+
+        .response-text {
+            font-size: 17px;
+            color: #e2e8f0;
+            max-height: 150px;
+            overflow-y: auto;
+            line-height: 1.2;
+            word-break: break-word;
+        }
+
+        /* --- THANH NHẬP CHAT --- */
+        .ai-chat-bar {
+            width: 100%;
             height: 48px;
             background: linear-gradient(90deg, rgba(42, 65, 58, 0.85) 0%, rgba(62, 79, 71, 0.85) 50%, rgba(79, 89, 91, 0.85) 100%);
             border: 1px solid rgba(255, 255, 255, 0.25);
             border-radius: 25px;
-            padding: 4px 6px 4px 14px;
+            padding: 4px 6px 4px 12px;
             display: flex;
             align-items: center;
             box-shadow: 0 10px 25px rgba(0,0,0,0.7);
             backdrop-filter: blur(10px);
-            z-index: 90;
+            position: relative;
         }
 
         .ai-icon-plus {
-            font-size: 20px;
-            color: rgba(167, 243, 208, 0.8);
+            font-size: 22px;
+            color: #38bdf8;
             margin-right: 8px;
             font-weight: bold;
+            cursor: pointer;
+            width: 28px; height: 28px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            transition: background 0.2s;
         }
+
+        .ai-icon-plus:active { background: rgba(56, 189, 248, 0.3); }
 
         .ai-input {
             flex-grow: 1;
             background: transparent;
-            border: none;
-            outline: none;
+            border: none; outline: none;
             color: #ffffff;
             font-family: 'VT323', monospace;
-            font-size: 18px; /* Chữ vừa vặn không bị to */
+            font-size: 18px;
             letter-spacing: 0.5px;
         }
 
-        /* Chữ mờ mờ mượt mà */
-        .ai-input::placeholder {
-            color: rgba(255, 255, 255, 0.45);
-            font-size: 16px;
-        }
+        .ai-input::placeholder { color: rgba(255, 255, 255, 0.45); font-size: 16px; }
 
         .ai-btn {
-            width: 38px;
-            height: 38px;
+            width: 38px; height: 38px;
             background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
             border: 1.5px solid rgba(255, 255, 255, 0.7);
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; flex-shrink: 0;
             box-shadow: 0 2px 6px rgba(0,0,0,0.5);
             transition: transform 0.1s;
         }
 
-        .ai-btn:active {
-            transform: scale(0.9);
-        }
-
+        .ai-btn:active { transform: scale(0.9); }
         .ai-btn-arrow {
-            width: 0;
-            height: 0;
+            width: 0; height: 0;
             border-top: 6px solid transparent;
             border-bottom: 6px solid transparent;
             border-left: 10px solid #ffffff;
             margin-left: 2px;
         }
 
-        /* --- MODALS --- */
-        .modal {
+        /* MENU CHỌN MODEL (GROQ / GPT-4O) */
+        .model-selector-menu {
             display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
+            position: absolute;
+            bottom: 58px; left: 10px;
+            background: #09131a;
+            border: 1px solid #38bdf8;
+            border-radius: 12px;
+            padding: 5px;
+            flex-direction: column;
+            gap: 4px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.8);
             z-index: 100;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+        }
+
+        .model-opt {
+            padding: 6px 12px;
+            font-size: 16px;
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .model-opt.active { background: #0284c7; font-weight: bold; }
+
+        /* MODALS (ADMIN & PW) */
+        .modal {
+            display: none; position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 100;
+            justify-content: center; align-items: center; padding: 20px;
         }
 
         .modal-content {
-            background: #09131a;
-            border: 2px solid #ffffff;
-            border-radius: 20px;
-            padding: 18px;
-            width: 100%;
-            max-width: 340px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            background: #09131a; border: 2px solid #ffffff;
+            border-radius: 20px; padding: 18px;
+            width: 100%; max-width: 340px;
+            display: flex; flex-direction: column; gap: 10px;
         }
 
-        .modal-title {
-            font-size: 24px;
-            color: #38bdf8;
-            text-align: center;
-        }
+        .modal-title { font-size: 24px; color: #38bdf8; text-align: center; }
 
         .input-field {
-            background: #000;
-            border: 1px solid #ffffff;
-            border-radius: 8px;
-            padding: 8px 10px;
-            color: white;
-            outline: none;
-            font-family: 'VT323', monospace;
-            font-size: 18px;
+            background: #000; border: 1px solid #ffffff;
+            border-radius: 8px; padding: 8px 10px;
+            color: white; outline: none;
+            font-family: 'VT323', monospace; font-size: 18px;
         }
 
         .btn-submit {
-            background: #0284c7;
-            color: white;
-            border: 1px solid #fff;
-            border-radius: 8px;
-            padding: 6px;
-            font-family: 'VT323', monospace;
-            font-size: 20px;
-            cursor: pointer;
+            background: #0284c7; color: white;
+            border: 1px solid #fff; border-radius: 8px;
+            padding: 6px; font-family: 'VT323', monospace;
+            font-size: 20px; cursor: pointer;
         }
 
-        .btn-cancel {
-            color: #94a3b8;
-            text-align: center;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .ai-response-box {
-            max-height: 200px;
-            overflow-y: auto;
-            font-size: 18px;
-            color: #e2e8f0;
-            background: #000;
-            border: 1px solid #334155;
-            padding: 10px;
-            border-radius: 8px;
-            line-height: 1.2;
-        }
+        .btn-cancel { color: #94a3b8; text-align: center; font-size: 16px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -334,19 +319,28 @@
 
     <div class="file-list" id="fileContainer"></div>
 
-    <div class="ai-chat-bar">
-        <span class="ai-icon-plus">+</span>
-        <input type="text" id="aiInput" class="ai-input" placeholder="bạn có câu hỏi? Hỏi ngay AI">
-        <div class="ai-btn" onclick="sendAiQuestion()">
-            <div class="ai-btn-arrow"></div>
+    <!-- KHUNG CHAT & AI RESPONSE PHÍA TRÊN -->
+    <div class="chat-container-wrapper">
+        <div class="ai-response-popup" id="aiResponseBox">
+            <div class="response-header">
+                <span class="response-model-tag" id="modelTag">[GROQ - Llama 3]</span>
+                <span class="response-close" onclick="closeAiResponse()">✕</span>
+            </div>
+            <div class="response-text" id="aiResponseText">...</div>
         </div>
-    </div>
 
-    <div class="modal" id="aiModal">
-        <div class="modal-content">
-            <div class="modal-title">Trả lời từ AI</div>
-            <div class="ai-response-box" id="aiResponse">Đang suy nghĩ...</div>
-            <div class="btn-cancel" onclick="closeModals()">Đóng</div>
+        <div class="ai-chat-bar">
+            <span class="ai-icon-plus" id="btnToggleModel" onclick="toggleModelMenu()">+</span>
+            <input type="text" id="aiInput" class="ai-input" placeholder="Hỏi AI (Groq / GPT-4o)...">
+            <div class="ai-btn" onclick="sendAiQuestion()">
+                <div class="ai-btn-arrow"></div>
+            </div>
+
+            <!-- Menu Chọn Model -->
+            <div class="model-selector-menu" id="modelMenu">
+                <div class="model-opt active" id="opt-groq" onclick="selectModel('groq')">Groq (Llama 3)</div>
+                <div class="model-opt" id="opt-gpt4o" onclick="selectModel('gpt4o')">GPT-4o (OpenRouter)</div>
+            </div>
         </div>
     </div>
 
@@ -372,10 +366,13 @@
     </div>
 
     <script>
-        // CẤU HÌNH SUPABASE & KEY AI
+        // CẤU HÌNH SUPABASE & KEYS AI
         const SUPABASE_URL = "https://uipjgdkasbcdhxlmzclc.supabase.co"; 
         const SUPABASE_KEY = "sb_publishable_XApMlu8Nm_kJF8ceuPvsQg_E-g19QwX";             
-        const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY";     
+        
+        // Dán API Key vào đây (Nếu để trống, code sẽ chạy chế độ Mock Test văn bản)
+        const GROQ_API_KEY = ""; 
+        const OPENROUTER_API_KEY = ""; 
 
         const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const AUTH_PASS = "meoneheroundertale";
@@ -383,6 +380,7 @@
         let filesData = [];
         let isDeleteMode = false;
         let pendingAction = null;
+        let currentModel = 'groq';
 
         // Tải danh sách file
         async function loadFiles() {
@@ -416,29 +414,89 @@
             });
         }
 
-        // Gửi câu hỏi cho AI
+        // CHỌN MODEL AI (GROQ / GPT-4O)
+        function toggleModelMenu() {
+            const menu = document.getElementById('modelMenu');
+            menu.style.display = (menu.style.display === 'flex') ? 'none' : 'flex';
+        }
+
+        function selectModel(model) {
+            currentModel = model;
+            document.querySelectorAll('.model-opt').forEach(el => el.classList.remove('active'));
+            document.getElementById(`opt-${model}`).classList.add('active');
+            toggleModelMenu();
+        }
+
+        // HÀM MỞ / ĐÓNG POPUP TRẢ LỜI AI
+        function openAiResponse(text, modelName) {
+            document.getElementById('modelTag').innerText = `[${modelName}]`;
+            document.getElementById('aiResponseText').innerText = text;
+            document.getElementById('aiResponseBox').classList.add('active');
+        }
+
+        function closeAiResponse() {
+            document.getElementById('aiResponseBox').classList.remove('active');
+        }
+
+        // GỬI CÂU HỎI AI (GROQ / OPENROUTER GPT-4O)
         async function sendAiQuestion() {
             const query = document.getElementById('aiInput').value.trim();
             if(!query) return;
 
-            document.getElementById('aiResponse').innerText = "Đang suy nghĩ...";
-            document.getElementById('aiModal').style.display = 'flex';
+            openAiResponse("Đang suy nghĩ...", currentModel === 'groq' ? 'GROQ - Llama3' : 'GPT-4o');
 
+            // --- KIỂM TRA & CHẠY MOCK TEST NẾU CHƯA CÓ KEY ---
+            if ((currentModel === 'groq' && !GROQ_API_KEY) || (currentModel === 'gpt4o' && !OPENROUTER_API_KEY)) {
+                setTimeout(() => {
+                    const mockReplies = [
+                        `[TEST MODE] Câu hỏi: "${query}"\n-> Sans Undertale nhắn: "chào bro, tao là BadTimeSans v1 đây! Code animation đỉnh vl đúng ko?"`,
+                        `[TEST MODE - ${currentModel.toUpperCase()}]\n-> Trả lời: Hệ thống AI đang chạy mượt mà trên giao diện Archive của MeoNeHero!`
+                    ];
+                    const randomReply = mockReplies[Math.floor(Math.random() * mockReplies.length)];
+                    openAiResponse(randomReply, currentModel === 'groq' ? 'GROQ (Mock)' : 'GPT-4o (Mock)');
+                }, 800);
+                return;
+            }
+
+            // --- GỬI API THẬT NẾU ĐÃ ĐIỀN KEY ---
             try {
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: query }] }] })
-                });
-                const data = await res.json();
-                const reply = data.candidates[0].content.parts[0].text;
-                document.getElementById('aiResponse').innerText = reply;
+                let responseText = "";
+                if (currentModel === 'groq') {
+                    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${GROQ_API_KEY}`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            messages: [{ role: "user", content: query }],
+                            model: "llama-3.1-8b-instant"
+                        })
+                    });
+                    const data = await res.json();
+                    responseText = data.choices[0].message.content;
+                } else {
+                    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            model: "openai/gpt-4o",
+                            messages: [{ role: "user", content: query }]
+                        })
+                    });
+                    const data = await res.json();
+                    responseText = data.choices[0].message.content;
+                }
+                openAiResponse(responseText, currentModel === 'groq' ? 'GROQ - Llama3' : 'GPT-4o');
             } catch(e) {
-                document.getElementById('aiResponse').innerText = "Lỗi kết nối AI hoặc Key API!";
+                openAiResponse("Lỗi kết nối API! Kiểm tra lại Key hoặc kết nối mạng.", "LỖI");
             }
         }
 
-        // Chạm 3 lần Avatar & Vuốt 3 lần
+        // TÍNH NĂNG ADMIN (CHẠM 3 LẦN AVATAR / VUỐT 3 LẦN)
         let avatarClicks = 0, clickTimer = null;
         document.getElementById('avatarBtn').addEventListener('click', () => {
             avatarClicks++;
@@ -463,10 +521,10 @@
             clearTimeout(swipeTimer);
             swipeTimer = setTimeout(() => { swipeRightCount = 0; swipeLeftCount = 0; }, 1500);
 
-            if (diffX < -50) { // Vuốt Phải -> Trái 3 lần
+            if (diffX < -50) { 
                 swipeLeftCount++; swipeRightCount = 0;
                 if (swipeLeftCount === 3) { swipeLeftCount = 0; openPasswordModal('add'); }
-            } else if (diffX > 50) { // Vuốt Trái -> Phải 3 lần
+            } else if (diffX > 50) { 
                 swipeRightCount++; swipeLeftCount = 0;
                 if (swipeRightCount === 3) { swipeRightCount = 0; openPasswordModal('delete'); }
             }
@@ -490,7 +548,7 @@
             document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
         }
 
-        // Thêm / Xóa File
+        // THÊM / XÓA FILE
         async function addNewFile() {
             const title = document.getElementById('fileTitle').value;
             const description = document.getElementById('fileDesc').value;
