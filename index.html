@@ -3,102 +3,318 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>MeoNeHero - Archive & AI</title>
+    <title>MeoNeHero - Archive</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        
         body {
-            background: linear-gradient(180deg, #051e28 0%, #0a2d3c 40%, #000000 100%);
-            color: #fff; font-family: sans-serif;
-            min-height: 100vh; display: flex; flex-direction: column; align-items: center;
-            padding: 20px 15px 90px 15px; overflow-x: hidden;
+            background: #02232d;
+            background: linear-gradient(180deg, #022834 0%, #011822 40%, #000000 100%);
+            color: #fff;
+            font-family: 'VT323', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 15px 120px 15px;
+            overflow-x: hidden;
+            position: relative;
         }
 
-        /* Profile Header */
-        .profile { text-align: center; margin-bottom: 25px; margin-top: 10px; }
+        /* --- HIỆU ỨNG QUẦNG SÁNG XANH DƯƠNG & TRẮNG Ở ĐÁY MÀN HÌNH --- */
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120%;
+            height: 180px;
+            background: radial-gradient(ellipse at bottom, rgba(56, 189, 248, 0.35) 0%, rgba(255, 255, 255, 0.15) 35%, rgba(0,0,0,0) 70%);
+            pointer-events: none;
+            z-index: 1;
+            animation: bottomGlow 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes bottomGlow {
+            0% { opacity: 0.7; transform: translateX(-50%) scale(0.98); }
+            100% { opacity: 1; transform: translateX(-50%) scale(1.05); }
+        }
+
+        /* --- HEADER PROFILE --- */
+        .profile {
+            width: 100%;
+            max-width: 380px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 5px;
+            margin-bottom: 20px;
+            z-index: 2;
+        }
+
         .avatar-frame {
-            width: 100px; height: 100px; border-radius: 50%;
-            border: 3px solid #6ee7b7; padding: 3px; display: inline-block;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 2px solid #38bdf8;
+            padding: 2px;
+            flex-shrink: 0;
             cursor: pointer;
         }
-        .avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-        .username { font-size: 22px; font-weight: bold; margin-top: 8px; color: #e2e8f0; }
-        .subtext { font-size: 13px; color: #94a3b8; margin-top: 2px; }
-        .quote { font-size: 12px; color: #64748b; margin-top: 4px; font-style: italic; }
 
-        /* File List Container */
-        .file-list { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 15px; }
+        .avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #000;
+        }
 
-        /* File Card Item */
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .username {
+            font-size: 28px;
+            font-weight: bold;
+            color: #38bdf8;
+            line-height: 1;
+            letter-spacing: 0.5px;
+        }
+
+        .subtext {
+            font-size: 18px;
+            color: #7dd3fc;
+            margin-top: 2px;
+        }
+
+        .quote-label {
+            font-size: 15px;
+            color: #94a3b8;
+            margin-top: 3px;
+        }
+
+        .quote {
+            font-size: 16px;
+            color: #cbd5e1;
+        }
+
+        /* --- DANH SÁCH FILE --- */
+        .file-list {
+            width: 100%;
+            max-width: 380px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            z-index: 2;
+        }
+
         .file-card {
-            background: rgba(15, 23, 42, 0.6);
-            border: 2px solid #ffffff; border-radius: 35px;
-            padding: 8px 15px 8px 8px; display: flex; align-items: center;
-            backdrop-filter: blur(5px); text-decoration: none; color: inherit;
-            position: relative; transition: transform 0.2s;
+            background: #000000;
+            border: 2px solid #ffffff;
+            border-radius: 35px;
+            padding: 6px 15px 6px 6px;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            transition: transform 0.1s ease;
         }
-        .file-card:active { transform: scale(0.98); }
+
+        .file-card:active {
+            transform: scale(0.97);
+        }
+
         .banner {
-            width: 60px; height: 60px; border-radius: 50%;
-            border: 2px solid #fff; background: #000;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 11px; font-weight: bold; flex-shrink: 0;
-            overflow: hidden; object-fit: cover;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: 2px solid #ffffff;
+            background: #ffffff;
+            color: #000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            flex-shrink: 0;
+            overflow: hidden;
+            object-fit: cover;
         }
-        .file-info { margin-left: 15px; flex-grow: 1; overflow: hidden; }
-        .file-title { font-size: 16px; font-weight: bold; }
-        .file-desc { font-size: 12px; color: #cbd5e1; margin-top: 2px; }
 
-        /* Delete Button */
+        .file-info {
+            margin-left: 12px;
+            flex-grow: 1;
+        }
+
+        .file-title {
+            font-size: 22px;
+            color: #ffffff;
+            line-height: 1;
+        }
+
+        .file-desc {
+            font-size: 15px;
+            color: #a1a1aa;
+            margin-top: 2px;
+        }
+
         .btn-card-del {
-            background: #ef4444; color: white; border: none;
-            border-radius: 20px; padding: 6px 12px; font-size: 11px;
-            cursor: pointer; font-weight: bold; margin-left: 8px;
+            background: #ef4444;
+            color: white;
+            border: 1px solid #fff;
+            border-radius: 15px;
+            padding: 2px 8px;
+            font-family: 'VT323', monospace;
+            font-size: 16px;
+            cursor: pointer;
+            margin-left: 6px;
         }
 
-        /* AI Chat Box ở chân trang */
+        /* --- THANH NHẬP AI VỪA KHÍT & CHỮ MỜ MỜ (CHUẨN VIDEO/MOCKUP) --- */
         .ai-chat-bar {
-            position: fixed; bottom: 15px; width: calc(100% - 30px); max-width: 420px;
-            background: rgba(30, 41, 59, 0.9); border: 1px solid #475569;
-            border-radius: 30px; padding: 6px 12px; display: flex; align-items: center;
-            backdrop-filter: blur(10px); z-index: 90;
-        }
-        .ai-input {
-            flex-grow: 1; background: transparent; border: none; outline: none;
-            color: #fff; font-size: 13px; padding: 6px 10px;
-        }
-        .ai-btn {
-            background: #38bdf8; border: none; width: 34px; height: 34px;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; flex-shrink: 0; color: #000; font-weight: bold;
+            position: fixed;
+            bottom: 20px;
+            width: calc(100% - 30px);
+            max-width: 380px;
+            height: 48px;
+            background: linear-gradient(90deg, rgba(42, 65, 58, 0.85) 0%, rgba(62, 79, 71, 0.85) 50%, rgba(79, 89, 91, 0.85) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 25px;
+            padding: 4px 6px 4px 14px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            z-index: 90;
         }
 
-        /* Modal Overlay */
+        .ai-icon-plus {
+            font-size: 20px;
+            color: rgba(167, 243, 208, 0.8);
+            margin-right: 8px;
+            font-weight: bold;
+        }
+
+        .ai-input {
+            flex-grow: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #ffffff;
+            font-family: 'VT323', monospace;
+            font-size: 18px; /* Chữ vừa vặn không bị to */
+            letter-spacing: 0.5px;
+        }
+
+        /* Chữ mờ mờ mượt mà */
+        .ai-input::placeholder {
+            color: rgba(255, 255, 255, 0.45);
+            font-size: 16px;
+        }
+
+        .ai-btn {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
+            border: 1.5px solid rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+            transition: transform 0.1s;
+        }
+
+        .ai-btn:active {
+            transform: scale(0.9);
+        }
+
+        .ai-btn-arrow {
+            width: 0;
+            height: 0;
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+            border-left: 10px solid #ffffff;
+            margin-left: 2px;
+        }
+
+        /* --- MODALS --- */
         .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 100;
-            justify-content: center; align-items: center; padding: 20px;
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
         }
+
         .modal-content {
-            background: #0f172a; border: 1px solid #334155; border-radius: 20px;
-            padding: 20px; width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 12px;
+            background: #09131a;
+            border: 2px solid #ffffff;
+            border-radius: 20px;
+            padding: 18px;
+            width: 100%;
+            max-width: 340px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
-        .modal-title { font-size: 18px; font-weight: bold; color: #38bdf8; text-align: center; }
+
+        .modal-title {
+            font-size: 24px;
+            color: #38bdf8;
+            text-align: center;
+        }
+
         .input-field {
-            background: #1e293b; border: 1px solid #475569; border-radius: 10px;
-            padding: 10px; color: white; outline: none; font-size: 14px;
+            background: #000;
+            border: 1px solid #ffffff;
+            border-radius: 8px;
+            padding: 8px 10px;
+            color: white;
+            outline: none;
+            font-family: 'VT323', monospace;
+            font-size: 18px;
         }
+
         .btn-submit {
-            background: #0284c7; color: white; border: none; border-radius: 10px;
-            padding: 12px; font-weight: bold; cursor: pointer; margin-top: 5px;
+            background: #0284c7;
+            color: white;
+            border: 1px solid #fff;
+            border-radius: 8px;
+            padding: 6px;
+            font-family: 'VT323', monospace;
+            font-size: 20px;
+            cursor: pointer;
         }
+
         .btn-cancel {
-            background: transparent; color: #94a3b8; border: none;
-            padding: 6px; cursor: pointer; text-align: center; font-size: 13px;
+            color: #94a3b8;
+            text-align: center;
+            font-size: 16px;
+            cursor: pointer;
         }
+
         .ai-response-box {
-            max-height: 200px; overflow-y: auto; font-size: 13px; color: #e2e8f0;
-            background: #1e293b; padding: 10px; border-radius: 10px; line-height: 1.4;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 18px;
+            color: #e2e8f0;
+            background: #000;
+            border: 1px solid #334155;
+            padding: 10px;
+            border-radius: 8px;
+            line-height: 1.2;
         }
     </style>
 </head>
@@ -108,16 +324,22 @@
         <div class="avatar-frame" id="avatarBtn">
             <img class="avatar" src="https://via.placeholder.com/100" alt="Avatar">
         </div>
-        <div class="username">MeoNeHero</div>
-        <div class="subtext">~1500 Followers</div>
-        <div class="quote">câu nói để đời: BadTimeSans gay v1</div>
+        <div class="profile-info">
+            <div class="username">MeoNeHero</div>
+            <div class="subtext">~1500 Followers</div>
+            <div class="quote-label">câu nói để đời:</div>
+            <div class="quote">BadTimeSans gay v1</div>
+        </div>
     </div>
 
     <div class="file-list" id="fileContainer"></div>
 
     <div class="ai-chat-bar">
+        <span class="ai-icon-plus">+</span>
         <input type="text" id="aiInput" class="ai-input" placeholder="bạn có câu hỏi? Hỏi ngay AI">
-        <button class="ai-btn" onclick="sendAiQuestion()">➔</button>
+        <div class="ai-btn" onclick="sendAiQuestion()">
+            <div class="ai-btn-arrow"></div>
+        </div>
     </div>
 
     <div class="modal" id="aiModal">
@@ -150,10 +372,10 @@
     </div>
 
     <script>
-        // --- 1. CẤU HÌNH SUPABASE & API KEY ---
-        const SUPABASE_URL = "https://xxxx.supabase.co"; // <--- ĐIỀN URL SUPABASE CỦA CẬU
-        const SUPABASE_KEY = "eyJhbGciOi...";             // <--- ĐIỀN ANON KEY CỦA CẬU
-        const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY";     // <--- ĐIỀN API KEY GEMINI/OPENAI
+        // CẤU HÌNH SUPABASE & KEY AI
+        const SUPABASE_URL = "https://xxxx.supabase.co"; 
+        const SUPABASE_KEY = "eyJhbGciOi...";             
+        const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY";     
 
         const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const AUTH_PASS = "meoneheroundertale";
@@ -162,7 +384,7 @@
         let isDeleteMode = false;
         let pendingAction = null;
 
-        // --- 2. LOAD VÀ RENDER TỪ SUPABASE ---
+        // Tải danh sách file
         async function loadFiles() {
             const { data, error } = await db.from('files').select('*').order('id', { ascending: false });
             if (!error && data) {
@@ -186,7 +408,7 @@
                     ${bannerImg}
                     <div class="file-info">
                         <div class="file-title">${item.title}</div>
-                        <div class="file-desc">${item.description || ''}</div>
+                        <div class="file-desc">${item.description || 'mô tả...'}</div>
                     </div>
                     ${isDeleteMode ? `<button class="btn-card-del" onclick="deleteFile(${item.id})">Xóa</button>` : ''}
                 `;
@@ -194,7 +416,7 @@
             });
         }
 
-        // --- 3. KHU VỰC CHAT AI ---
+        // Gửi câu hỏi cho AI
         async function sendAiQuestion() {
             const query = document.getElementById('aiInput').value.trim();
             if(!query) return;
@@ -203,23 +425,20 @@
             document.getElementById('aiModal').style.display = 'flex';
 
             try {
-                // Gọi API Gemini
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: query }] }]
-                    })
+                    body: JSON.stringify({ contents: [{ parts: [{ text: query }] }] })
                 });
                 const data = await res.json();
                 const reply = data.candidates[0].content.parts[0].text;
                 document.getElementById('aiResponse').innerText = reply;
             } catch(e) {
-                document.getElementById('aiResponse').innerText = "Lỗi kết nối AI hoặc sai Key API!";
+                document.getElementById('aiResponse').innerText = "Lỗi kết nối AI hoặc Key API!";
             }
         }
 
-        // --- 4. CỬ CHỈ GESTURE & XÁC THỰC ---
+        // Chạm 3 lần Avatar & Vuốt 3 lần
         let avatarClicks = 0, clickTimer = null;
         document.getElementById('avatarBtn').addEventListener('click', () => {
             avatarClicks++;
@@ -244,10 +463,10 @@
             clearTimeout(swipeTimer);
             swipeTimer = setTimeout(() => { swipeRightCount = 0; swipeLeftCount = 0; }, 1500);
 
-            if (diffX < -50) { // Phải -> Trái 3 lần
+            if (diffX < -50) { // Vuốt Phải -> Trái 3 lần
                 swipeLeftCount++; swipeRightCount = 0;
                 if (swipeLeftCount === 3) { swipeLeftCount = 0; openPasswordModal('add'); }
-            } else if (diffX > 50) { // Trái -> Phải 3 lần
+            } else if (diffX > 50) { // Vuốt Trái -> Phải 3 lần
                 swipeRightCount++; swipeLeftCount = 0;
                 if (swipeRightCount === 3) { swipeRightCount = 0; openPasswordModal('delete'); }
             }
@@ -271,27 +490,26 @@
             document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
         }
 
-        // --- 5. THÊM & XÓA DỮ LIỆU TỪ SUPABASE ---
+        // Thêm / Xóa File
         async function addNewFile() {
             const title = document.getElementById('fileTitle').value;
             const description = document.getElementById('fileDesc').value;
             const banner_url = document.getElementById('fileBanner').value;
             const media_url = document.getElementById('fileLink').value;
 
-            if(!title || !media_url) return alert("Vui lòng nhập Tên file và Link!");
+            if(!title || !media_url) return alert("Cần nhập Tên file và Link!");
 
             const { error } = await db.from('files').insert([{ title, description, banner_url, media_url }]);
             if(!error) {
                 closeModals();
                 loadFiles();
-            } else alert("Có lỗi khi đăng file!");
+            } else alert("Lỗi khi thêm file!");
         }
 
         async function deleteFile(id) {
-            if(!confirm("Xóa file này vĩnh viễn?")) return;
+            if(!confirm("Xóa file này?")) return;
             const { error } = await db.from('files').delete().eq('id', id);
             if(!error) loadFiles();
-            else alert("Lỗi khi xóa file!");
         }
 
         loadFiles();
