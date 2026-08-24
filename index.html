@@ -9,26 +9,39 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
         
-        /* 1. Theme 7 Sắc Cầu Vồng (RGB Dynamic Theme) */
-        @keyframes rainbowTheme {
-            0%   { background-position: 0% 0%; }
-            50%  { background-position: 100% 100%; }
-            100% { background-position: 0% 0%; }
+        /* Hiệu ứng Nền Asriel Dreemurr Cầu Vồng (Hyperlink Rainbow) */
+        @keyframes asrielRainbow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         body {
-            background: linear-gradient(135deg, #0f172a, #3b0764, #1e1b4b, #030712, #0284c7, #4c1d95, #000000);
-            background-size: 400% 400%;
-            animation: rainbowTheme 15s ease infinite;
+            background: linear-gradient(
+                90deg, 
+                #ff0000, #ff7f00, #ffff00, #00ff00, #00ffff, #0000ff, #8b00ff, #ff007f, #ff0000
+            );
+            background-size: 300% 100%;
+            animation: asrielRainbow 6s linear infinite;
             color: #fff;
             font-family: 'VT323', monospace;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 15px 15px 130px 15px;
+            padding: 20px 15px 50px 15px;
             overflow-x: hidden;
             position: relative;
+        }
+
+        /* Phủ lớp màng hơi tối nhẹ để nổi bật chữ */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.45);
+            pointer-events: none;
+            z-index: 0;
         }
 
         body::after {
@@ -39,26 +52,32 @@
             transform: translateX(-50%);
             width: 120%;
             height: 180px;
-            background: radial-gradient(ellipse at bottom, rgba(56, 189, 248, 0.35) 0%, rgba(255, 255, 255, 0.15) 35%, rgba(0,0,0,0) 70%);
+            background: radial-gradient(ellipse at bottom, rgba(255, 255, 255, 0.4) 0%, rgba(0,0,0,0) 70%);
             pointer-events: none;
             z-index: 1;
-            animation: bottomGlow 4s ease-in-out infinite alternate;
+            animation: bottomGlow 3s ease-in-out infinite alternate;
         }
 
         @keyframes bottomGlow {
-            0% { opacity: 0.7; transform: translateX(-50%) scale(0.98); }
+            0% { opacity: 0.6; transform: translateX(-50%) scale(0.98); }
             100% { opacity: 1; transform: translateX(-50%) scale(1.05); }
+        }
+
+        .profile-container {
+            position: relative;
+            width: 100%;
+            max-width: 380px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
         }
 
         .profile {
             width: 100%;
-            max-width: 380px;
             display: flex;
             align-items: center;
             gap: 15px;
-            margin-top: 5px;
-            margin-bottom: 20px;
-            z-index: 2;
             animation: fadeInProfile 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
 
@@ -71,12 +90,13 @@
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            border: 2px solid #38bdf8;
+            border: 2px solid #ffffff;
             padding: 2px;
             flex-shrink: 0;
             cursor: pointer;
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
             transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: #000;
         }
 
         .avatar-frame:active { transform: scale(0.9); }
@@ -89,23 +109,80 @@
             background: #000;
         }
 
-        .profile-info { display: flex; flex-direction: column; }
-        .username { font-size: 28px; font-weight: bold; color: #38bdf8; line-height: 1; letter-spacing: 0.5px; }
-        .subtext { font-size: 18px; color: #7dd3fc; margin-top: 2px; }
-        .quote-label { font-size: 15px; color: #94a3b8; margin-top: 3px; }
-        .quote { font-size: 16px; color: #cbd5e1; }
+        .profile-info { display: flex; flex-direction: column; text-shadow: 2px 2px 4px #000; }
+        .username { font-size: 28px; font-weight: bold; color: #ffffff; line-height: 1; letter-spacing: 0.5px; }
+        .subtext { font-size: 18px; color: #e2e8f0; margin-top: 2px; }
+        .quote-label { font-size: 15px; color: #cbd5e1; margin-top: 3px; }
+        .quote { font-size: 16px; color: #ffffff; font-weight: bold; }
 
+        /* Bio Popup Trồi Xướng Từ Avatar */
+        .bio-popup-wrapper {
+            position: absolute;
+            top: 40px;
+            left: 5px;
+            transform: scale(0.1);
+            transform-origin: top left;
+            z-index: 20;
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.45s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.3s ease, width 0.4s ease, height 0.4s ease;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #ffffff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9), 0 0 20px rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(12px);
+            overflow: hidden;
+        }
+
+        .bio-popup-wrapper.active {
+            transform: scale(1);
+            opacity: 1;
+            pointer-events: auto;
+            width: calc(100vw - 30px);
+            max-width: 380px;
+            height: 220px;
+            border-radius: 20px;
+        }
+
+        .bio-content {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.25s ease 0.15s;
+            height: 100%;
+        }
+
+        .bio-popup-wrapper.active .bio-content { opacity: 1; }
+
+        .bio-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.5);
+            padding-bottom: 5px;
+        }
+
+        .bio-title { font-size: 22px; color: #ffff00; font-weight: bold; }
+        .bio-close { font-size: 20px; color: #94a3b8; cursor: pointer; }
+        .bio-body { font-size: 17px; color: #ffffff; line-height: 1.3; overflow-y: auto; }
+
+        /* Danh sách Card Link - Đã tăng Margin Cách Xa Avatar */
         .file-list {
             width: 100%;
             max-width: 380px;
             display: flex;
             flex-direction: column;
             gap: 14px;
+            margin-top: 35px; /* Đẩy button chứa link cách avatar một khoảng thoải mái */
             z-index: 2;
         }
 
         .file-card {
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.9);
             border: 2px solid #ffffff;
             border-radius: 35px;
             padding: 6px 15px 6px 6px;
@@ -117,7 +194,7 @@
             opacity: 0;
             transform: translateY(40px);
             animation: fadeInUpCard 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
             transition: transform 0.1s ease;
         }
 
@@ -150,170 +227,6 @@
             font-size: 16px; cursor: pointer; margin-left: 6px;
         }
 
-        /* 2. Vòng tròn Comment Bung Nước (Liquid Morphing) */
-        .liquid-comment-wrapper {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            z-index: 99;
-            display: flex;
-            align-items: flex-end;
-            justify-content: flex-end;
-        }
-
-        .comment-btn-circle {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
-            border: 2px solid #ffffff;
-            box-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 26px;
-            color: #fff;
-            transition: transform 0.2s ease, max-width 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55), max-height 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55), border-radius 0.4s ease;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .comment-btn-circle:active { transform: scale(0.92); }
-
-        /* Khi mở rộng thành Hình Chữ Nhật bo góc kiểu Bung Nước */
-        .liquid-comment-wrapper.expanded .comment-btn-circle {
-            width: calc(100vw - 40px);
-            max-width: 360px;
-            height: 380px;
-            border-radius: 24px;
-            background: rgba(9, 19, 26, 0.95);
-            border: 2px solid #38bdf8;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 25px rgba(56, 189, 248, 0.3);
-            backdrop-filter: blur(15px);
-            cursor: default;
-            align-items: flex-start;
-            justify-content: flex-start;
-        }
-
-        .comment-box-content {
-            display: none;
-            width: 100%;
-            height: 100%;
-            padding: 14px;
-            flex-direction: column;
-            gap: 10px;
-            opacity: 0;
-            transition: opacity 0.3s ease 0.2s;
-        }
-
-        .liquid-comment-wrapper.expanded .comment-box-content {
-            display: flex;
-            opacity: 1;
-        }
-
-        .comment-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px dashed rgba(56, 189, 248, 0.4);
-            padding-bottom: 6px;
-        }
-
-        .comment-title { font-size: 20px; color: #38bdf8; font-weight: bold; }
-        .comment-close { font-size: 20px; color: #94a3b8; cursor: pointer; }
-
-        .comment-list {
-            flex-grow: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            padding-right: 4px;
-        }
-
-        .comment-item {
-            background: rgba(255, 255, 255, 0.05);
-            border-left: 3px solid #38bdf8;
-            padding: 6px 10px;
-            border-radius: 4px;
-        }
-
-        .comment-user { font-size: 15px; color: #7dd3fc; font-weight: bold; }
-        .comment-text { font-size: 16px; color: #f1f5f9; word-break: break-word; }
-
-        .comment-input-group {
-            display: flex;
-            gap: 6px;
-        }
-
-        .cmt-input {
-            background: #000; border: 1px solid #38bdf8;
-            border-radius: 8px; padding: 6px 10px;
-            color: #fff; font-family: 'VT323', monospace;
-            font-size: 16px; outline: none;
-        }
-
-        .cmt-input-name { width: 90px; }
-        .cmt-input-text { flex-grow: 1; }
-
-        .btn-send-cmt {
-            background: #0284c7; color: white; border: none;
-            border-radius: 8px; padding: 0 12px;
-            font-family: 'VT323', monospace; font-size: 18px;
-            cursor: pointer;
-        }
-
-        /* 3. Bio Drop Popup từ Avatar */
-        .bio-popup-wrapper {
-            position: fixed;
-            top: 15px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-150%);
-            z-index: 100;
-            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55), width 0.4s ease, height 0.4s ease, border-radius 0.4s ease;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: rgba(9, 19, 26, 0.98);
-            border: 2px solid #38bdf8;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.9), 0 0 20px rgba(56, 189, 248, 0.4);
-            backdrop-filter: blur(15px);
-            overflow: hidden;
-        }
-
-        .bio-popup-wrapper.active {
-            transform: translateX(-50%) translateY(0);
-            width: calc(100vw - 30px);
-            max-width: 360px;
-            height: 260px;
-            border-radius: 24px;
-        }
-
-        .bio-content {
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            opacity: 0;
-            transition: opacity 0.3s ease 0.2s;
-            height: 100%;
-        }
-
-        .bio-popup-wrapper.active .bio-content { opacity: 1; }
-
-        .bio-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px dashed rgba(56, 189, 248, 0.4);
-            padding-bottom: 5px;
-        }
-
-        .bio-title { font-size: 22px; color: #38bdf8; font-weight: bold; }
-        .bio-close { font-size: 20px; color: #94a3b8; cursor: pointer; }
-        .bio-body { font-size: 17px; color: #e2e8f0; line-height: 1.3; overflow-y: auto; }
-
         /* Modal hệ thống */
         .modal {
             display: none; position: fixed;
@@ -323,23 +236,23 @@
         }
 
         .modal-content {
-            background: #09131a; border: 2px solid #ffffff;
+            background: #000000; border: 2px solid #ffffff;
             border-radius: 20px; padding: 18px;
             width: 100%; max-width: 340px;
             display: flex; flex-direction: column; gap: 10px;
         }
 
-        .modal-title { font-size: 24px; color: #38bdf8; text-align: center; }
+        .modal-title { font-size: 24px; color: #ffff00; text-align: center; }
 
         .input-field {
-            background: #000; border: 1px solid #ffffff;
+            background: #111; border: 1px solid #ffffff;
             border-radius: 8px; padding: 8px 10px;
             color: white; outline: none;
             font-family: 'VT323', monospace; font-size: 18px;
         }
 
         .btn-submit {
-            background: #0284c7; color: white;
+            background: #ff0000; color: white;
             border: 1px solid #fff; border-radius: 8px;
             padding: 6px; font-family: 'VT323', monospace;
             font-size: 20px; cursor: pointer;
@@ -350,58 +263,39 @@
 </head>
 <body>
 
-    <!-- Profile Header -->
-    <div class="profile">
-        <div class="avatar-frame" id="avatarBtn">
-            <img class="avatar" src="https://files.catbox.moe/8liyyh.jpg" alt="Avatar">
+    <div class="profile-container">
+        <!-- Profile Header -->
+        <div class="profile">
+            <div class="avatar-frame" id="avatarBtn">
+                <img class="avatar" src="https://files.catbox.moe/8liyyh.jpg" alt="Avatar">
+            </div>
+            <div class="profile-info">
+                <div class="username">MeoNeHero</div>
+                <div class="subtext">1500 Followers</div>
+                <div class="quote-label">câu nói để đời:</div>
+                <div class="quote">BadTimeSans gay vl</div>
+            </div>
         </div>
-        <div class="profile-info">
-            <div class="username">MeoNeHero</div>
-            <div class="subtext">1500 Followers</div>
-            <div class="quote-label">câu nói để đời:</div>
-            <div class="quote">BadTimeSans gay vl</div>
+
+        <!-- Bio Drop Popup (Trồi xuống ngay bên dưới Avatar) -->
+        <div class="bio-popup-wrapper" id="bioPopup">
+            <div class="bio-content">
+                <div class="bio-header">
+                    <span class="bio-title">📜 BIO DETAILS</span>
+                    <span class="bio-close" onclick="closeBioPopup()">✕</span>
+                </div>
+                <div class="bio-body">
+                    🎮 <b>Creator / Developer</b> đam mê Undertale AUs & Scratch Projects.<br>
+                    🔥 Chuyên Port Game, Modding Android & Dev Discord Bot.<br>
+                    💬 <i>"BadTimeSans gay vl"</i> - Triết lý sống chuẩn chỉ.<br>
+                    📌 Ghé thăm archive để lấy tài nguyên free nhé anh em!
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Danh sách Files -->
+    <!-- Danh sách Files (Link Buttons) -->
     <div class="file-list" id="fileContainer"></div>
-
-    <!-- Bio Dropdown Popup -->
-    <div class="bio-popup-wrapper" id="bioPopup">
-        <div class="bio-content">
-            <div class="bio-header">
-                <span class="bio-title">📜 LÝ LỊCH SƠ LƯỢC</span>
-                <span class="bio-close" onclick="closeBioPopup()">✕</span>
-            </div>
-            <div class="bio-body">
-                🎮 <b>Creator / Developer</b> đam mê Undertale AUs & Scratch Projects.<br>
-                🔥 Chuyên Port Game, Modding Android & Dev Discord Bot.<br>
-                💬 <i>"BadTimeSans gay vl"</i> - Triết lý sống chuẩn chỉ.<br>
-                📌 Ghé thăm archive để lấy tài nguyên free nhé anh em!
-            </div>
-        </div>
-    </div>
-
-    <!-- Floating Liquid Comment Circle -->
-    <div class="liquid-comment-wrapper" id="liquidCmtWrapper">
-        <div class="comment-btn-circle" id="cmtCircleBtn" onclick="toggleCommentBox(true)">
-            <span id="cmtIcon">💬</span>
-            <div class="comment-box-content">
-                <div class="comment-header">
-                    <span class="comment-title">💬 SỔ LƯU BÚT</span>
-                    <span class="comment-close" onclick="event.stopPropagation(); toggleCommentBox(false)">✕</span>
-                </div>
-                <div class="comment-list" id="commentList">
-                    <div style="text-align:center; color:#94a3b8;">Đang tải lời nhắn...</div>
-                </div>
-                <div class="comment-input-group" onclick="event.stopPropagation()">
-                    <input type="text" id="cmtName" class="cmt-input cmt-input-name" placeholder="Tên..." maxlength="12">
-                    <input type="text" id="cmtText" class="cmt-input cmt-input-text" placeholder="Lời nhắn..." maxlength="60">
-                    <button class="btn-send-cmt" onclick="sendComment()">Gửi</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Modals Quản trị -->
     <div class="modal" id="pwModal">
@@ -466,62 +360,6 @@
             });
         }
 
-        // --- QUẢN LÝ SỔ LƯU BÚT (COMMENTS) ---
-        function toggleCommentBox(open) {
-            const wrapper = document.getElementById('liquidCmtWrapper');
-            const icon = document.getElementById('cmtIcon');
-            if(open) {
-                wrapper.classList.add('expanded');
-                icon.style.display = 'none';
-                loadComments();
-            } else {
-                wrapper.classList.remove('expanded');
-                setTimeout(() => { icon.style.display = 'block'; }, 300);
-            }
-        }
-
-        async function loadComments() {
-            const listElem = document.getElementById('commentList');
-            const { data, error } = await db.from('comments').select('*').order('id', { ascending: false }).limit(20);
-            
-            if (error || !data || data.length === 0) {
-                listElem.innerHTML = `<div style="text-align:center; color:#94a3b8; margin-top:20px;">Chưa có lời nhắn nào. Hãy mở bát đi bro!</div>`;
-                return;
-            }
-
-            listElem.innerHTML = '';
-            data.forEach(cmt => {
-                const item = document.createElement('div');
-                item.className = 'comment-item';
-                item.innerHTML = `
-                    <div class="comment-user">${escapeHtml(cmt.username || 'Ẩn danh')}</div>
-                    <div class="comment-text">${escapeHtml(cmt.content)}</div>
-                `;
-                listElem.appendChild(item);
-            });
-        }
-
-        async function sendComment() {
-            const nameInput = document.getElementById('cmtName');
-            const textInput = document.getElementById('cmtText');
-            const username = nameInput.value.trim() || 'Ẩn danh';
-            const content = textInput.value.trim();
-
-            if (!content) return;
-
-            textInput.value = '';
-            const { error } = await db.from('comments').insert([{ username, content }]);
-            if (!error) {
-                loadComments();
-            } else {
-                alert("Lỗi khi gửi lời nhắn! (Đảm bảo bảng 'comments' đã được tạo trên Supabase)");
-            }
-        }
-
-        function escapeHtml(text) {
-            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        }
-
         // --- BIO POPUP AVATAR ---
         function toggleBioPopup() {
             const bio = document.getElementById('bioPopup');
@@ -532,7 +370,7 @@
             document.getElementById('bioPopup').classList.remove('active');
         }
 
-        // --- XỬ LÝ SỰ KIỆN CLICK AVATAR (BIO & ADMIN) ---
+        // --- XỬ LÝ CLICK AVATAR (MỞ BIO HẶC ADMIN MODAL) ---
         let avatarClicks = 0, clickTimer = null;
         document.getElementById('avatarBtn').addEventListener('click', () => {
             avatarClicks++;
