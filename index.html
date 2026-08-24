@@ -22,7 +22,7 @@
             position: relative;
         }
 
-        /* KHUNG NỀN GIF / MEDIA CỦA BRO */
+        /* KHUNG NỀN VIDEO CỦA BRO */
         .bg-gif-container {
             position: fixed;
             top: 0; left: 0;
@@ -35,7 +35,7 @@
         .bg-gif {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Phủ kín màn hình chuẩn AM */
+            object-fit: cover;
         }
 
         /* PROFILE HEADER */
@@ -96,7 +96,7 @@
         }
 
         .file-card {
-            background: rgba(0, 0, 0, 0.75); /* Làm mờ nhẹ để nổi bật trên nền GIF */
+            background: rgba(0, 0, 0, 0.75);
             border: 2px solid #ffffff;
             border-radius: 35px;
             padding: 6px 15px 6px 6px;
@@ -135,11 +135,24 @@
         .file-title { font-size: 22px; color: #ffffff; line-height: 1; }
         .file-desc { font-size: 15px; color: #a1a1aa; margin-top: 2px; }
 
+        .action-btns {
+            display: flex;
+            gap: 6px;
+            margin-left: 6px;
+        }
+
+        .btn-card-edit {
+            background: #eab308; color: black;
+            border: 1px solid #fff; border-radius: 15px;
+            padding: 2px 8px; font-family: 'VT323', monospace;
+            font-size: 16px; cursor: pointer; font-weight: bold;
+        }
+
         .btn-card-del {
             background: #ef4444; color: white;
             border: 1px solid #fff; border-radius: 15px;
             padding: 2px 8px; font-family: 'VT323', monospace;
-            font-size: 16px; cursor: pointer; margin-left: 6px;
+            font-size: 16px; cursor: pointer;
         }
 
         /* MODAL ADMIN */
@@ -178,9 +191,11 @@
 </head>
 <body>
 
-    <!-- CONTAINER CHỨA NỀN GIF -->
+    <!-- VIDEO BACKGROUND CỦA BRO -->
     <div class="bg-gif-container">
-        <img id="customBg" class="bg-gif" src="" alt="Background GIF">
+        <video autoplay loop muted playsinline id="customBg" class="bg-gif">
+            <source src="https://files.catbox.moe/d7amrt.mp4" type="video/mp4">
+        </video>
     </div>
 
     <!-- PROFILE HEADER -->
@@ -211,32 +226,25 @@
 
     <div class="modal" id="adminModal">
         <div class="modal-content">
-            <div class="modal-title">Thêm File Mới</div>
+            <div class="modal-title" id="modalActionTitle">Thêm File Mới</div>
+            <input type="hidden" id="editFileId">
             <input type="text" id="fileTitle" class="input-field" placeholder="Tên file">
             <input type="text" id="fileDesc" class="input-field" placeholder="Mô tả...">
             <input type="text" id="fileBanner" class="input-field" placeholder="Link ảnh Banner">
             <input type="text" id="fileLink" class="input-field" placeholder="Link Mediafire / Lưu trữ">
-            <button class="btn-submit" onclick="addNewFile()">Đăng File</button>
+            <button class="btn-submit" id="btnSaveFile" onclick="saveFile()">Đăng File</button>
             <div class="btn-cancel" onclick="closeModals()">Đóng</div>
         </div>
     </div>
 
     <script>
-        // --- CHÈN LINK BACKGROUND GIF CỦA BRO VÀO ĐÂY ---
-        const BACKGROUND_URL = "https://files.catbox.moe/dv620z.gif";
-
-        // Tự động gán nền GIF
-        if (BACKGROUND_URL && BACKGROUND_URL !== "DÁN_LINK_GIF_HOẶC_ẢNH_CỦA_BRO_VÀO_ĐÂY") {
-            document.getElementById('customBg').src = BACKGROUND_URL;
-        }
-
         const SUPABASE_URL = "https://uipjgdkasbcdhxlmzclc.supabase.co"; 
         const SUPABASE_KEY = "sb_publishable_XApMlu8Nm_kJF8ceuPvsQg_E-g19QwX";             
         const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const AUTH_PASS = "meoneheroundertale";
 
         let filesData = [];
-        let isDeleteMode = false;
+        let isManageMode = false;
         let pendingAction = null;
 
         // --- LOAD FILES ---
@@ -252,8 +260,8 @@
             filesData.forEach((item, index) => {
                 const card = document.createElement('a');
                 card.className = 'file-card';
-                card.href = isDeleteMode ? 'javascript:void(0)' : item.media_url;
-                if(!isDeleteMode) card.target = "_blank";
+                card.href = isManageMode ? 'javascript:void(0)' : item.media_url;
+                if(!isManageMode) card.target = "_blank";
                 card.style.animationDelay = `${index * 0.12}s`;
 
                 const bannerImg = item.banner_url ? `<img src="${item.banner_url}" class="banner">` : `<div class="banner">Banner</div>`;
@@ -264,7 +272,12 @@
                         <div class="file-title">${item.title}</div>
                         <div class="file-desc">${item.description || 'mô tả...'}</div>
                     </div>
-                    ${isDeleteMode ? `<button class="btn-card-del" onclick="deleteFile(${item.id})">Xóa</button>` : ''}
+                    ${isManageMode ? `
+                        <div class="action-btns">
+                            <button class="btn-card-edit" onclick="openEditModal(${item.id})">Sửa</button>
+                            <button class="btn-card-del" onclick="deleteFile(${item.id})">Xóa</button>
+                        </div>
+                    ` : ''}
                 `;
                 container.appendChild(card);
             });
@@ -301,7 +314,7 @@
                 if (swipeLeftCount === 3) { swipeLeftCount = 0; openPasswordModal('add'); }
             } else if (diffX > 50) { 
                 swipeRightCount++; swipeLeftCount = 0;
-                if (swipeRightCount === 3) { swipeRightCount = 0; openPasswordModal('delete'); }
+                if (swipeRightCount === 3) { swipeRightCount = 0; openPasswordModal('manage'); }
             }
         });
 
@@ -315,8 +328,12 @@
         function checkPassword() {
             if (document.getElementById('pwInput').value === AUTH_PASS) {
                 closeModals();
-                if (pendingAction === 'add') document.getElementById('adminModal').style.display = 'flex';
-                else if (pendingAction === 'delete') { isDeleteMode = !isDeleteMode; renderFiles(); }
+                if (pendingAction === 'add') {
+                    openAddModal();
+                } else if (pendingAction === 'manage') { 
+                    isManageMode = !isManageMode; 
+                    renderFiles(); 
+                }
             } else alert("Mật khẩu không đúng!");
         }
 
@@ -324,7 +341,33 @@
             document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
         }
 
-        async function addNewFile() {
+        function openAddModal() {
+            document.getElementById('modalActionTitle').innerText = "Thêm File Mới";
+            document.getElementById('btnSaveFile').innerText = "Đăng File";
+            document.getElementById('editFileId').value = "";
+            document.getElementById('fileTitle').value = "";
+            document.getElementById('fileDesc').value = "";
+            document.getElementById('fileBanner').value = "";
+            document.getElementById('fileLink').value = "";
+            document.getElementById('adminModal').style.display = 'flex';
+        }
+
+        function openEditModal(id) {
+            const item = filesData.find(f => f.id === id);
+            if(!item) return;
+
+            document.getElementById('modalActionTitle').innerText = "Chỉnh Sửa File";
+            document.getElementById('btnSaveFile').innerText = "Lưu Thay Đổi";
+            document.getElementById('editFileId').value = item.id;
+            document.getElementById('fileTitle').value = item.title;
+            document.getElementById('fileDesc').value = item.description || "";
+            document.getElementById('fileBanner').value = item.banner_url || "";
+            document.getElementById('fileLink').value = item.media_url || "";
+            document.getElementById('adminModal').style.display = 'flex';
+        }
+
+        async function saveFile() {
+            const id = document.getElementById('editFileId').value;
             const title = document.getElementById('fileTitle').value;
             const description = document.getElementById('fileDesc').value;
             const banner_url = document.getElementById('fileBanner').value;
@@ -332,11 +375,15 @@
 
             if(!title || !media_url) return alert("Cần nhập Tên file và Link!");
 
-            const { error } = await db.from('files').insert([{ title, description, banner_url, media_url }]);
-            if(!error) {
-                closeModals();
-                loadFiles();
-            } else alert("Lỗi khi thêm file!");
+            if(id) {
+                // Sửa file
+                const { error } = await db.from('files').update({ title, description, banner_url, media_url }).eq('id', id);
+                if(!error) { closeModals(); loadFiles(); } else alert("Lỗi khi cập nhật file!");
+            } else {
+                // Thêm file
+                const { error } = await db.from('files').insert([{ title, description, banner_url, media_url }]);
+                if(!error) { closeModals(); loadFiles(); } else alert("Lỗi khi thêm file!");
+            }
         }
 
         async function deleteFile(id) {
